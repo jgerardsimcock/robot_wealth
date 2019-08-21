@@ -22,8 +22,17 @@ get_asset_list <- function(x) {
 
 get_daily_OHLC_ticker <- function(ticker) {
   td <- data.frame(matrix(ncol=7, nrow=0))
-  try(td <- cbind(Ticker = ticker, read.csv(file.path(DATA_FOLDER, 'daily', paste0(ticker,'.csv')), header = FALSE, stringsAsFactors = FALSE)))
+  try(td <- cbind(Ticker = ticker, read.csv(file.path(DATA_FOLDER, 'Daily', paste0(ticker,'.csv')), header = FALSE, stringsAsFactors = FALSE)))
   colnames(td) <- c('Ticker', 'Date', 'Open' ,'High', 'Low', 'Close', 'Volume')
+  td$Date <- as.Date(as.character(td$Date), '%Y%m%d')
+  td$Ticker <- as.character(td$Ticker)
+  return(td)
+}
+
+get_hourly_OHLC_ticker <- function(ticker) {
+  td <- data.frame(matrix(ncol=8, nrow=0))
+  try(td <- cbind(Ticker = ticker, read.csv(file.path(DATA_FOLDER, 'Hourly', paste0(ticker,'.csv')), header = FALSE, stringsAsFactors = FALSE)))
+  colnames(td) <- c('Ticker', 'Date', 'Time', 'Open' ,'High', 'Low', 'Close', 'Volume')
   td$Date <- as.Date(as.character(td$Date), '%Y%m%d')
   td$Ticker <- as.character(td$Ticker)
   return(td)
@@ -32,6 +41,12 @@ get_daily_OHLC_ticker <- function(ticker) {
 get_daily_OHLC <- function(tickers) {
   tickers <- gsub('/', '', tickers) # filenames do not have /'s but Zorro assetlists do  
   l <- lapply(tickers, get_daily_OHLC_ticker)
+  bind_rows(l)
+}
+
+get_hourly_OHLC <- function(tickers) {
+  tickers <- gsub('/', '', tickers) # filenames do not have /'s but Zorro assetlists do  
+  l <- lapply(tickers, get_hourly_OHLC_ticker)
   bind_rows(l)
 }
 
